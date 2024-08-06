@@ -91,11 +91,13 @@ Run the main script:
     ```bash
     python main.py
     ```
+
 This script will fetch the auction results, process the data, and save it to the SQLite database.
 
 ## Testing
 
     Run the tests:
+    
     ```bash
     python -m unittest tests/test_fetch_data.py   
     python -m unittest tests/test_database_schema.py
