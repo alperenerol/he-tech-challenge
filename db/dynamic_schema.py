@@ -5,6 +5,8 @@ from dateutil.parser import parse
 import configparser
 import logging
 
+from utils.utils import is_datetime
+
 # Configure logging
 logging.basicConfig(filename='logs.log', level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
@@ -49,25 +51,6 @@ def create_dynamic_table(fields):
         logging.info(f"Table {table_name} already exists, loaded existing table schema.")
 
     return dynamic_table
-
-def is_datetime(value):
-    """
-    Check if a given value is a datetime string.
-
-    Parameters:
-    value (str): The value to check.
-
-    Returns:
-    bool: True if the value is a datetime string, False otherwise.
-    """
-    if len(value) < 10:  # ISO 8601 format is at least 10 characters long (YYYY-MM-DD)
-        return False
-    
-    try:
-        parse(value)
-        return True
-    except (ValueError, TypeError):
-        return False
     
 def convert_dates(record):
     """

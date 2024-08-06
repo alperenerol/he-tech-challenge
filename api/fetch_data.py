@@ -3,8 +3,9 @@ import json
 import configparser
 from sqlalchemy import Integer, String, Float, DateTime, Boolean
 from datetime import datetime 
-from dateutil.parser import parse
 import logging
+
+from utils.utils import is_datetime
 
 # Configure logging
 logging.basicConfig(filename='logs.log', level=logging.INFO,
@@ -71,25 +72,6 @@ def fetch_auction_results(participant_name):
         logging.error(f"An error occurred while fetching auction results: {e}")
     
     return []
-
-def is_datetime(value):
-    """
-    Check if a given value is a datetime string.
-
-    Parameters:
-    value (str): The value to check.
-
-    Returns:
-    bool: True if the value is a datetime string, False otherwise.
-    """
-    if len(value) < 10:  # ISO 8601 format is at least 10 characters long (YYYY-MM-DD)
-        return False
-    
-    try:
-        parse(value)
-        return True
-    except (ValueError, TypeError):
-        return False
 
 def detect_fields(records):
     """
