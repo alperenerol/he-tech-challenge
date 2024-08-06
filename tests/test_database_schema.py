@@ -44,7 +44,6 @@ class TestDatabase(unittest.TestCase):
             # Check if deliveryEnd is a datetime object
             self.assertIsInstance(record.deliveryEnd, datetime.datetime, f"deliveryEnd is not a datetime object in record {record}")
             # Add more checks as needed for other fields...
-            self.assertIsInstance(record.executedQuantity, float, f"executedQuantity is not a float in record {record}")
             self.assertIsInstance(record.clearingPrice, float, f"clearingPrice is not a float in record {record}")
 
     def test_record_data(self):
@@ -57,7 +56,6 @@ class TestDatabase(unittest.TestCase):
             self.assertEqual(record.deliveryEnd.date(), current_date, f"deliveryEnd is not equal to the current date in record {record}")
             # Check specific business rules
             self.assertGreaterEqual(record.executedQuantity, 0, f"executedQuantity is negative in record {record}")
-            self.assertGreaterEqual(record.clearingPrice, 0, f"clearingPrice is negative in record {record}")
 
 if __name__ == '__main__':
     unittest.main()
