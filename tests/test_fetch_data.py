@@ -46,6 +46,16 @@ class TestFetchAuctionResults(unittest.TestCase):
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]['registeredAuctionParticipant'], 'HABITAT ENERGY LIMITED')
 
+        self.assertEqual(records[0]["_id"], 1)
+        self.assertEqual(records[0]["executedQuantity"], 36.0)
+        self.assertEqual(records[0]["clearingPrice"], 1.58)
+        # Convert the deliveryEnd to a date object for comparison
+        delivery_end_date = datetime.fromisoformat(records[0]['deliveryEnd']).date()
+        self.assertEqual(delivery_end_date, datetime(2024, 8, 6).date())
+        # Check if executedQuantity and clearingPrice are float
+        self.assertIsInstance(records[0]['executedQuantity'], float)
+        self.assertIsInstance(records[0]['clearingPrice'], float)
+
     @patch('api.fetch_data.requests.post')
     def test_fetch_auction_results_http_error(self, mock_post):
         # Setup mock response

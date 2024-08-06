@@ -63,7 +63,6 @@ def convert_dates(record):
         if key in record and isinstance(record[key], str):
             try:
                 record[key] = datetime.datetime.fromisoformat(record[key])
-                logging.info(f"Converted {key} to datetime: {record[key]}")
             except ValueError as e:
                 logging.error(f"Error converting date for record {record}: {e}")
                 raise
