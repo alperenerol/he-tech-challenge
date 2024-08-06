@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, inspect
 from sqlalchemy.orm import sessionmaker
 import datetime
+from dateutil.parser import parse
 import configparser
 import logging
 
@@ -49,6 +50,25 @@ def create_dynamic_table(fields):
 
     return dynamic_table
 
+def is_datetime(value):
+    """
+    Check if a given value is a datetime string.
+
+    Parameters:
+    value (str): The value to check.
+
+    Returns:
+    bool: True if the value is a datetime string, False otherwise.
+    """
+    if len(value) < 10:  # ISO 8601 format is at least 10 characters long (YYYY-MM-DD)
+        return False
+    
+    try:
+        parse(value)
+        return True
+    except (ValueError, TypeError):
+        return False
+    
 def convert_dates(record):
     """
     Convert string dates in the record to datetime objects.
@@ -59,12 +79,12 @@ def convert_dates(record):
     Returns:
     dict: The record with dates converted to datetime objects.
     """
-    for key in ['deliveryStart', 'deliveryEnd', 'orderEntryTime']:
-        if key in record and isinstance(record[key], str):
+    for key, value in record.items():
+        if isinstance(value, str) and is_datetime(value):
             try:
-                record[key] = datetime.datetime.fromisoformat(record[key])
+                record[key] = datetime.datetime.fromisoformat(value)
             except ValueError as e:
-                logging.error(f"Error converting date for record {record}: {e}")
+                logging.error(f"Error converting date for field {key} in record {record}: {e}")
                 raise
     return record
 
