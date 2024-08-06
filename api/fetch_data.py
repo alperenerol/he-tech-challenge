@@ -6,38 +6,20 @@ from datetime import datetime
 from dateutil.parser import parse
 import logging
 
-def fetch_auction_results(participant_name):
-    config = configparser.ConfigParser()
-    config.read('config.ini')
+# Configure logging
+logging.basicConfig(filename='errors.log', level=logging.INFO,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
 
-    url = config['api']['eso_auction_results_url']
-    resource_id = config['api']['resource_id']
-    limit = config['api'].getint('limit') # to get all rows without limitation
-    
-    headers = {'Content-Type': 'application/json'}
-    data = {
-        "resource_id": resource_id,
-        "limit": limit,
-        "filters": {
-            "registeredAuctionParticipant": participant_name
-        }
-    }
-    
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-    
-    if response.status_code != 200:
-        raise Exception(f"Failed to fetch data: HTTP {response.status_code}")
-    
-    response_dict = response.json()
-    if not response_dict.get('success', False):
-        error_message = response_dict.get('error', {}).get('message', 'Unknown error')
-        raise Exception(f"API Error: {error_message}")
-    
-    return response_dict['result']['records']
+# Read configuration once
+config = configparser.ConfigParser()
+config.read('config.ini')
+API_URL = config['api']['eso_auction_results_url']
+RESOURCE_ID = config['api']['resource_id']
+LIMIT = config['api'].getint('limit')  # default to 100 if not specified in config.ini
 
 def filter_results(records):
     """
-    Filter records to include only those for the current day based on the deliveryStart field.
+    Filter records to include only those for the current day based on the deliveryEnd field.
 
     Parameters:
     records (list): List of records to be filtered.
@@ -50,7 +32,7 @@ def filter_results(records):
 
     for record in records:
         try:
-            delivery_start = datetime.fromisoformat(record['deliveryStart']).date()
+            delivery_start = datetime.fromisoformat(record['deliveryEnd']).date()
             if delivery_start == current_date:
                 filtered_records.append(record)
         except Exception as e:
@@ -58,7 +40,48 @@ def filter_results(records):
     
     return filtered_records
 
+def fetch_auction_results(participant_name):
+    try:
+        headers = {'Content-Type': 'application/json'}
+        data = {
+            "resource_id": RESOURCE_ID,
+            "limit": LIMIT,
+            "filters": {
+                "registeredAuctionParticipant": participant_name
+            }
+        }
+
+        response = requests.post(API_URL, headers=headers, data=json.dumps(data))
+
+        if response.status_code != 200:
+            raise Exception(f"Failed to fetch data: HTTP {response.status_code}")
+
+        response_dict = response.json()
+        if not response_dict.get('success', False):
+            error_message = response_dict.get('error', {}).get('message', 'Unknown error')
+            raise Exception(f"API Error: {error_message}")
+
+        return filter_results(response_dict['result']['records'])
+    
+    except requests.RequestException as e:
+        logging.error(f"Network error occurred while fetching auction results: {e}")
+    except json.JSONDecodeError as e:
+        logging.error(f"JSON decoding error occurred while fetching auction results: {e}")
+    except Exception as e:
+        logging.error(f"An error occurred while fetching auction results: {e}")
+    
+    return []
+
 def is_datetime(value):
+    """
+    Check if a given value is a datetime string.
+
+    Parameters:
+    value (str): The value to check.
+
+    Returns:
+    bool: True if the value is a datetime string, False otherwise.
+    """
     try:
         parse(value)
         return True
@@ -66,6 +89,15 @@ def is_datetime(value):
         return False
 
 def detect_fields(records):
+    """
+    Detect the fields and their types in the records.
+
+    Parameters:
+    records (list): List of records to detect fields from.
+
+    Returns:
+    dict: Dictionary with field names as keys and SQLAlchemy types as values.
+    """
     if not records:
         return []
     

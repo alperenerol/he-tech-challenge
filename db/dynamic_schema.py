@@ -5,14 +5,14 @@ import configparser
 import logging
 
 # Configure logging
-logging.basicConfig(filename='errors.log', level=logging.ERROR,
+logging.basicConfig(filename='errors.log', level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 # Load configuration
 config = configparser.ConfigParser()
 config.read('config.ini')
-resource_id = config['api']['resource_id']
-table_name = f'auction_results_{resource_id[:8]}'
+RESOURCE_ID = config['api']['resource_id']
+table_name = f'auction_results_{RESOURCE_ID[:8]}'
 
 # Database setup
 DATABASE_URL = config['database']['url']
@@ -45,6 +45,7 @@ def create_dynamic_table(fields):
     else:
         # Load the existing table
         dynamic_table = Table(table_name, metadata, autoload_with=engine)
+        logging.info(f"Table {table_name} already exists, loaded existing table schema.")
 
     return dynamic_table
 
@@ -62,6 +63,7 @@ def convert_dates(record):
         if key in record and isinstance(record[key], str):
             try:
                 record[key] = datetime.datetime.fromisoformat(record[key])
+                logging.info(f"Converted {key} to datetime: {record[key]}")
             except ValueError as e:
                 logging.error(f"Error converting date for record {record}: {e}")
                 raise
@@ -82,8 +84,10 @@ def save_results(records, table):
             try:
                 record = convert_dates(record)  # Convert date strings to datetime objects
                 ins = table.insert().values(**record)
-                db.execute(ins)
+                db.execute(ins)  # Execute the insert statement
+                logging.info(f"Inserted record {record}")
             except Exception as e:
                 logging.error(f"Error inserting record {record}: {e}")
     db.commit()
+    logging.info(f"Committed all records to table {table.name}")
     db.close()
