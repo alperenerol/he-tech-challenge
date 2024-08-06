@@ -6,7 +6,7 @@ from api.fetch_data import fetch_auction_results, detect_fields
 from db.dynamic_schema import create_dynamic_table, save_results
 
 # Configure logging
-logging.basicConfig(filename='errors.log', level=logging.INFO,
+logging.basicConfig(filename='logs.log', level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 # Load configuration

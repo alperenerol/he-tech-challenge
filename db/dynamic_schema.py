@@ -5,7 +5,7 @@ import configparser
 import logging
 
 # Configure logging
-logging.basicConfig(filename='errors.log', level=logging.INFO,
+logging.basicConfig(filename='logs.log', level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 # Load configuration
