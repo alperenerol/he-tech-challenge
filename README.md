@@ -35,40 +35,41 @@ habitat_energy/
 │   ├── test_fetch_data.py
 │   ├── test_database.py
 
-## main.py
+### main.py
 
-    Entry point of the application.
-    Fetches data, detects fields, creates/loads tables, and saves results.
+- Entry point of the application.
+- Fetches data, detects fields, creates/loads tables, and saves results.
 
-## config.ini
+### config.ini
 
-    Contains database and API configuration settings.
+- Contains database and API configuration settings.
 
-## api/fetch_data.py
+### api/fetch_data.py
 
-    Functions to fetch data from the National Grid ESO API.
-    Filters and processes the fetched data.
+- Functions to fetch data from the National Grid ESO API.
+- Filters and processes the fetched data.
 
-## db/dynamic_schema.py
+### db/dynamic_schema.py
 
-    Functions to dynamically create tables, convert dates, and save records.
+- Functions to dynamically create tables, convert dates, and save records.
 
-## tests/test_fetch_data.py
+### tests/test_fetch_data.py
 
-    Unit tests for fetching auction results.
+- Unit tests for fetching auction results.
 
-## tests/test_database.py
+### tests/test_database.py
 
-    Unit tests for database operations and schema validation.
+- Unit tests for database operations and schema validation.
 
-# Setup Instructions
-## Prerequisites
+## Setup Instructions
 
-    Python 3.8 or higher
-    SQLite
+### Prerequisites
 
-# Installation
-1. Change directory to repo directory
+- Python 3.8 or higher
+- SQLite
+
+### Installation
+1. Change directory to the repo directory:
     ```bash
     cd he-tech-challenge
     ```
