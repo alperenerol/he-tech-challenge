@@ -32,8 +32,8 @@ def filter_results(records):
 
     for record in records:
         try:
-            delivery_start = datetime.fromisoformat(record['deliveryEnd']).date()
-            if delivery_start == current_date:
+            delivery_end = datetime.fromisoformat(record['deliveryEnd']).date()
+            if delivery_end == current_date:
                 filtered_records.append(record)
         except Exception as e:
             logging.error(f"Error processing record {record}: {e}")
@@ -102,7 +102,7 @@ def detect_fields(records):
     dict: Dictionary with field names as keys and SQLAlchemy types as values.
     """
     if not records:
-        return []
+        return {}
     
     field_types = {}
     

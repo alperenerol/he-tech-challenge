@@ -18,6 +18,10 @@ current_date = datetime.now().date()
 def main():
     try:
         results = fetch_auction_results(participant_name)
+        if not results:
+            logging.info("No results fetched.")
+            return
+        
         fields = detect_fields(results)
         auction_results_table = create_dynamic_table(fields)
         save_results(results, auction_results_table)
