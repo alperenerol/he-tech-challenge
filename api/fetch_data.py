@@ -82,6 +82,9 @@ def is_datetime(value):
     Returns:
     bool: True if the value is a datetime string, False otherwise.
     """
+    if len(value) < 10:  # ISO 8601 format is at least 10 characters long (YYYY-MM-DD)
+        return False
+    
     try:
         parse(value)
         return True

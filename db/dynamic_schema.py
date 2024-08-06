@@ -87,6 +87,7 @@ def save_results(records, table):
                 logging.info(f"Inserted record {record}")
             except Exception as e:
                 logging.error(f"Error inserting record {record}: {e}")
+                logging.error(f"Record causing error: {record}")
     db.commit()
     logging.info(f"Committed all records to table {table.name}")
     db.close()
