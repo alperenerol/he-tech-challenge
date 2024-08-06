@@ -15,26 +15,6 @@ This project involves fetching auction results data from the National Grid ESO A
 
 ## Project Structure
 
-habitat_energy/
-│
-├── main.py
-├── config.ini
-├── requirements.txt
-├── README.md
-├── logs.log
-├── habitat_env/
-├── auction_results.db
-│
-├── api/
-│   ├── fetch_data.py
-│
-├── db/
-│   ├── dynamic_schema.py
-│
-├── tests/
-│   ├── test_fetch_data.py
-│   ├── test_database.py
-
 ### main.py
 
 - Entry point of the application.
@@ -69,8 +49,9 @@ habitat_energy/
 - SQLite
 
 ### Installation
-1. Change directory to the repo directory:
+1. Change directory to the repo directory (optional git clone):
     ```bash
+    git clone https://github.com/alperenerol/he-tech-challenge.git
     cd he-tech-challenge
     ```
 
