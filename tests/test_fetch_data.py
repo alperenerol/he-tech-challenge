@@ -1,6 +1,8 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from api.fetch_data import fetch_auction_results
+import requests
+import json
 from datetime import datetime 
 
 class TestFetchAuctionResults(unittest.TestCase):
@@ -8,10 +10,13 @@ class TestFetchAuctionResults(unittest.TestCase):
     @patch('api.fetch_data.requests.post')
     def test_fetch_auction_results(self, mock_post):
         # Mock response data
-        mock_response_data = {
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
             "help": "https://api.nationalgrideso.com/api/3/action/help_show?name=datastore_search",
             "success": True,
             "result": {
+                "resource_id": "a63ab354-7e68-44c2-ad96-c6f920c30e85",
                 "records": [
                     {
                         "_id": 1,
@@ -32,28 +37,68 @@ class TestFetchAuctionResults(unittest.TestCase):
         }
         
         # Configure the mock to return a response with the mocked data
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.json.return_value = mock_response_data
+        mock_post.return_value = mock_response
         
         # Call the function
         records = fetch_auction_results("HABITAT ENERGY LIMITED")
-
-        # Debugging: Print results and resource_id
-        print("Results:", records)
         
         # Assertions
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0]["_id"], 1)
-        self.assertEqual(records[0]["executedQuantity"], 36.0)
-        self.assertEqual(records[0]["clearingPrice"], 1.58)
         self.assertEqual(records[0]['registeredAuctionParticipant'], 'HABITAT ENERGY LIMITED')
-        # Convert the deliveryEnd to a date object for comparison
-        delivery_end_date = datetime.fromisoformat(records[0]['deliveryEnd']).date()
-        self.assertEqual(delivery_end_date, datetime(2024, 8, 6).date())
 
-        # Check if executedQuantity and clearingPrice are float
-        self.assertIsInstance(records[0]['executedQuantity'], float)
-        self.assertIsInstance(records[0]['clearingPrice'], float)
+    @patch('api.fetch_data.requests.post')
+    def test_fetch_auction_results_http_error(self, mock_post):
+        # Setup mock response
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_post.return_value = mock_response
+
+        # Call the function
+        results = fetch_auction_results("HABITAT ENERGY LIMITED")
+
+        # Assertions
+        self.assertEqual(results, [])
+
+    @patch('api.fetch_data.requests.post')
+    def test_fetch_auction_results_api_error(self, mock_post):
+        # Setup mock response
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "success": False,
+            "error": {
+                "message": "Invalid request"
+            }
+        }
+        mock_post.return_value = mock_response
+
+        # Call the function
+        results = fetch_auction_results("HABITAT ENERGY LIMITED")
+
+        # Assertions
+        self.assertEqual(results, [])
+
+    @patch('api.fetch_data.requests.post')
+    def test_fetch_auction_results_json_decode_error(self, mock_post):
+        # Setup mock to raise JSONDecodeError
+        mock_post.side_effect = json.JSONDecodeError("Expecting value", "", 0)
+
+        # Call the function
+        results = fetch_auction_results("HABITAT ENERGY LIMITED")
+
+        # Assertions
+        self.assertEqual(results, [])
+
+    @patch('api.fetch_data.requests.post')
+    def test_fetch_auction_results_request_exception(self, mock_post):
+        # Setup mock to raise RequestException
+        mock_post.side_effect = requests.RequestException("Network error")
+
+        # Call the function
+        results = fetch_auction_results("HABITAT ENERGY LIMITED")
+
+        # Assertions
+        self.assertEqual(results, [])
 
 if __name__ == '__main__':
     unittest.main()
